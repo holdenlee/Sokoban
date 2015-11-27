@@ -81,11 +81,9 @@ readGame str =
         xw = length (l!!0)
         xh = length l
         r = [1..xh] >>= (\x -> map (,x) [1..xw]) 
---range ((1,1), (xw,xh))
         ploc = fromJust $ findIndex (==Player) objL
         goals = length $ findIndices (==Goal) baseL
         ingoals = length $ findIndices (==(Goal, Block)) cli
---        ixs = [1..yw] >>= (\x -> map (x,) [1..xw])
     in
       Model {_baseLayer = array ((1,1),(xw,xh)) $ zip r baseL,
              _objLayer = array ((1,1),(xw,xh)) $ zip r objL,
@@ -97,18 +95,10 @@ readGame str =
 
 startGame :: Model 
 startGame = readGame gameString
-{-Model {_baseLayer = repeat2 4 4 Empty,
-                   _objLayer = repeat2 4 4 None //
-                              [((1,1), Player)],
-                   _playerLoc = (1,1),
-                   _inGoal = 0,
-                   _face = (1,0),
-                   _w = 4,
-                   _h = 4}-}
 
 imagePath = "iceblox.png"
 
-{-Rendering-}
+{-| Rendering -}
 renderBase :: Base -> Element
 renderBase b = case b of
   Goal -> croppedImage (210,30) 30 30 imagePath
@@ -183,18 +173,5 @@ render m = let
                    ((map (\((x,y),obj) -> putAt mw mh x y (renderObj obj)) $ assocs (_objLayer m))++
                     (map (\((x,y),base) -> putAt mw mh x y (renderBase base)) $ assocs (_baseLayer m)))
 
---whenPress :: Signal Bool -> Signal Bool
---whenPress k = S.filter id False <| S.dropRepeats k
-
---arrowSignal :: SignalGen (Signal (Int, Int))
---arrowSignal = lift (const (1,0)) $ isDown LeftKey
---S.constant (-1,0)
-{-S.mergeMany [map (const (-1,0)) <| isDown LeftKey,
-                           map (const (1,0)) <| isDown RightKey,
-                           map (const (0,1)) <| isDown UpKey,
-                           map (const (0,-1)) <| isDown DownKey]
--}
 main :: IO ()
 main = run $ lift render $ S.foldp step startGame dirSignal
-
--- https://dl.dropboxusercontent.com/u/27883775/wiki/apps/elm/iceblox.gif
